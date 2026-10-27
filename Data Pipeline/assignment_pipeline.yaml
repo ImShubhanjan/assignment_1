@@ -1,0 +1,31 @@
+resources:
+  jobs:
+    Assignment_1_Data_Pipeline:
+      name: Assignment 1 - Data Pipeline
+      tasks:
+        - task_key: data_ingestion
+          notebook_task:
+            notebook_path: /Users/shubhanjanbarai18@gmail.com/assignment_1/data_ingestion_script/data_ingestion_script
+            source: WORKSPACE
+        - task_key: check_landing_folder
+          depends_on:
+            - task_key: data_ingestion
+          condition_task:
+            op: EQUAL_TO
+            left: "{{tasks.data_ingestion.values.landing_folder_empty}}"
+            right: "false"
+        - task_key: clean_and_transform
+          depends_on:
+            - task_key: check_landing_folder
+              outcome: "true"
+          notebook_task:
+            notebook_path: /Users/shubhanjanbarai18@gmail.com/assignment_1/clean_and_transformation/clean_and_transformation
+            source: WORKSPACE
+        - task_key: sql_analytics
+          depends_on:
+            - task_key: clean_and_transform
+          notebook_task:
+            notebook_path: /Users/shubhanjanbarai18@gmail.com/assignment_1/sql_analytics/sql_analytics
+            source: WORKSPACE
+      queue:
+        enabled: true
